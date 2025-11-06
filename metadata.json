@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Gemini AI Showcase",
+  "description": "A web application demonstrating various capabilities of the Gemini API, including a chatbot, image generation, low-latency streaming, and a 'thinking mode' for complex queries.",
+  "requestFramePermissions": []
+}

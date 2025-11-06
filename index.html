@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'gemini-dark': '#131314',
+              'gemini-light-dark': '#1f1f1f',
+              'gemini-grey': '#303134',
+              'gemini-light-grey': '#5f6368',
+              'gemini-text': '#e8eaed',
+              'gemini-blue': '#8ab4f8',
+              'gemini-purple': '#c58af9',
+            },
+          },
+        },
+      }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0"
+  }
+}
+</script>
+</head>
+<body class="bg-gemini-dark text-gemini-text">
+    <div id="root"></div>
+</body>
+</html>
