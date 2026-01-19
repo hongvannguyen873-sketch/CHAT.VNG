@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
 import { generateWithThinking } from '../services/geminiService';
 import LoadingSpinner from './LoadingSpinner';
 import { BrainIcon } from './Icons';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ThinkingMode: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -68,7 +69,61 @@ const ThinkingMode: React.FC = () => {
         )}
         {error && <p className="text-red-400 p-4">{error}</p>}
         {response && (
-            <pre className="whitespace-pre-wrap text-gemini-text font-sans">{response}</pre>
+             <ReactMarkdown
+                children={response}
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    h1: ({node, ...props}) => <h1 className="text-3xl font-bold mt-6 mb-4" {...props} />,
+                    h2: ({node, ...props}) => <h2 className="text-2xl font-bold mt-5 mb-3 border-b border-gemini-grey pb-2" {...props} />,
+                    h3: ({node, ...props}) => <h3 className="text-xl font-bold mt-4 mb-2" {...props} />,
+                    p: ({node, ...props}) => <p className="mb-4 leading-relaxed" {...props} />,
+                    a: ({node, ...props}) => <a className="text-gemini-blue hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc pl-8 mb-4" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal pl-8 mb-4" {...props} />,
+                    li: ({node, ...props}) => <li className="mb-2" {...props} />,
+                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-gemini-light-grey pl-4 italic text-gemini-light-grey my-4" {...props} />,
+                    pre: ({node, children, ...props}) => {
+                        const codeBlock = React.Children.toArray(children).find(
+                            (child) => React.isValidElement(child) && child.type === 'code'
+                        ) as React.ReactElement | undefined;
+
+                        if (codeBlock) {
+                            const lang = codeBlock.props.className?.replace('language-', '') || 'text';
+                            const code = String(codeBlock.props.children).replace(/\n$/, '');
+
+                            return (
+                                <div className="bg-gemini-dark rounded-lg my-4 overflow-hidden border border-gemini-grey">
+                                    <div className="flex items-center justify-between px-4 py-1 bg-gemini-grey">
+                                        <span className="text-gemini-light-grey text-xs capitalize">{lang}</span>
+                                        <button
+                                            onClick={() => navigator.clipboard.writeText(code)}
+                                            className="text-gemini-light-grey hover:text-gemini-text text-xs font-sans p-1 rounded hover:bg-gemini-light-grey/20 transition-colors"
+                                            aria-label="Copy code to clipboard"
+                                        >
+                                            Copy code
+                                        </button>
+                                    </div>
+                                    <pre className="p-4 overflow-x-auto" {...props}>
+                                        {children}
+                                    </pre>
+                                </div>
+                            );
+                        }
+                        return <pre className="bg-gemini-dark rounded-lg my-4 p-4 overflow-x-auto border border-gemini-grey" {...props}>{children}</pre>;
+                    },
+                    code({node, inline, className, children, ...props}) {
+                        return !inline ? (
+                            <code className={`${className} font-mono text-sm`} {...props}>
+                                {children}
+                            </code>
+                        ) : (
+                            <code className="bg-gemini-grey text-gemini-purple rounded px-1.5 py-1 font-mono text-sm" {...props}>
+                                {children}
+                            </code>
+                        );
+                    },
+                }}
+            />
         )}
         {!isLoading && !error && !response && (
             <div className="flex items-center justify-center h-full">

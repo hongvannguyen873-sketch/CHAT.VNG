@@ -1,16 +1,16 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { Chat } from '@google/genai';
 import { createChatSession } from '../services/geminiService';
 import type { ChatMessage } from '../types';
 import LoadingSpinner from './LoadingSpinner';
-import { SendIcon } from './Icons';
+import { SendIcon, ErrorIcon } from './Icons';
 
 const ChatBot: React.FC = () => {
   const [chat, setChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,6 +27,7 @@ const ChatBot: React.FC = () => {
   const handleSend = async () => {
     if (!input.trim() || !chat || isLoading) return;
 
+    setError(null);
     const userMessage: ChatMessage = { role: 'user', text: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -38,8 +39,7 @@ const ChatBot: React.FC = () => {
       setMessages(prev => [...prev, modelMessage]);
     } catch (error) {
       console.error(error);
-      const errorMessage: ChatMessage = { role: 'model', text: 'Sorry, something went wrong. Please try again.' };
-      setMessages(prev => [...prev, errorMessage]);
+      setError('Sorry, something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +64,25 @@ const ChatBot: React.FC = () => {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-red-900/30 border border-red-700/50 text-red-400 flex items-center justify-between" role="alert" aria-live="assertive">
+            <div className="flex items-center">
+                <ErrorIcon className="w-6 h-6 mr-3 flex-shrink-0" />
+                <span className="text-sm font-medium">{error}</span>
+            </div>
+            <button 
+                onClick={() => setError(null)} 
+                className="p-1 rounded-full hover:bg-red-500/20 transition-colors"
+                aria-label="Dismiss error message"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+      )}
+
       <div className="flex items-center">
         <input
           type="text"
